@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "github.com/RaymondCode/simple-demo/model"
+	_ "github.com/RaymondCode/simple-demo/dal"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,3 +1,4 @@
+// Package model 这一层存放响应对象
 package model
 
 type Response struct {

@@ -3,9 +3,9 @@ package controller
 import (
 	"fmt"
 	"github.com/RaymondCode/simple-demo/model"
+	"github.com/RaymondCode/simple-demo/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"path/filepath"
 )
 
 type VideoListResponse struct {
@@ -13,8 +13,13 @@ type VideoListResponse struct {
 	VideoList []model.Video `json:"video_list"`
 }
 
+// 注入服务
+var videoService = service.NewVideoService()
+
 // Publish check token then save upload file to public directory
+// 获取参数，调用 service 层处理
 func Publish(c *gin.Context) {
+	// 读取表单数据
 	token := c.Query("token")
 	fmt.Println("携带的 token：" + token)
 
@@ -34,18 +39,17 @@ func Publish(c *gin.Context) {
 		return
 	}
 
-	filename := filepath.Base(data.Filename)
+	// 调用服务
 	user := usersLoginInfo[token]
-	finalName := fmt.Sprintf("%d_%s", user.Id, filename)
-	saveFile := filepath.Join("./public/", finalName)
-	if err := c.SaveUploadedFile(data, saveFile); err != nil {
+	finalName, err := videoService.PublishVideo(user, data, c)
+	if err != nil {
 		c.JSON(http.StatusOK, model.Response{
 			StatusCode: 1,
 			StatusMsg:  err.Error(),
 		})
-		return
 	}
 
+	// 返回上传成功
 	c.JSON(http.StatusOK, model.Response{
 		StatusCode: 0,
 		StatusMsg:  finalName + " uploaded successfully",

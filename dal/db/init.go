@@ -1,4 +1,4 @@
-package model
+package db
 
 import (
 	"fmt"
@@ -34,7 +34,7 @@ type redisConfig struct {
 var DB *gorm.DB
 var Redis *redis.Client
 
-func init() {
+func Init() {
 	DatabaseInit()
 }
 

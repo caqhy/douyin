@@ -1,0 +1,63 @@
+package service
+
+import (
+	"fmt"
+	"github.com/RaymondCode/simple-demo/constant"
+	"github.com/RaymondCode/simple-demo/dal/db"
+	"github.com/RaymondCode/simple-demo/model"
+	"github.com/gin-gonic/gin"
+	"mime/multipart"
+	"path/filepath"
+	"regexp"
+	"strings"
+)
+
+type VideoService struct {
+}
+
+// NewVideoService 创建服务
+func NewVideoService() *VideoService {
+	return &VideoService{}
+}
+
+// PublishVideo 发布视频
+// 发布成功则返回 fileName，否则抛出错误 err
+func (v *VideoService) PublishVideo(user model.User, title string, file *multipart.FileHeader) (finalName string, err error) {
+	// 获取文件名以及生成最终的文件名
+	filename := filepath.Base(file.Filename)
+	finalName = fmt.Sprintf("%d_%s", user.Id, filename)
+
+	// 设置存放路径，并保存到服务器
+	c := gin.Context{}
+	saveFile := filepath.Join("./public/", finalName)
+	if err = c.SaveUploadedFile(file, saveFile); err != nil {
+		return
+	}
+
+	// 封装视频对象
+	video := &db.Video{}
+	video.UserId = user.Id
+	video.Tag = v.parseTag(title)
+	video.PlayUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "/static/", filename)
+	// TODO 需要生成封面
+	// video.CoverUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "/static/", filename)
+
+	// 将视频信息保存到数据库
+	db.CreateVideo(video)
+	return
+}
+
+// getTag 解析标题中的标签，若有标签则去除标题中该标签
+func (v *VideoService) parseTag(title string) string {
+	// 取出第一行，作正则匹配
+	tagString := strings.Split(title, "\n")[0]
+	compile := regexp.MustCompile("#\\S+")
+	tags := compile.FindAllString(tagString, -1)
+
+	// 拼接标签为字符串
+	tagBuilder := strings.Builder{}
+	for _, v := range tags {
+		tagBuilder.Write([]byte(v))
+	}
+	return tagBuilder.String()
+}

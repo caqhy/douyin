@@ -60,10 +60,10 @@ func FavoriteList(c *gin.Context) {
 		return
 	}
 	likeVideoList := favoriteService.GetLikeList(p.UserId)
-	c.JSON(http.StatusOK, VideoListResponse{
+	c.JSON(http.StatusOK, FavoriteListResponse{
 		Response: model.Response{
 			StatusCode: 200,
 		},
-		VideoList: likeVideoList,
+		FavoriteList: likeVideoList,
 	})
 }

@@ -73,13 +73,13 @@ func (f *FavoriteService) GetLikeList(userId int64) []model.Video {
 	}
 
 	// 将找到的视频id转换为视频列表
-	for id := range videoIdSet.Iterator().C {
-		var video db.Video
-		db.DB.Find(&video, id)
-		var user model.User
-		videoVo := model.Video{}
-		videoList = append(videoList, videoVo)
-	}
+	//for id := range videoIdSet.Iterator().C {
+	//	var video db.Video
+	//	db.DB.Find(&video, id)
+	//	var user model.User
+	//	videoVo := model.Video{}
+	//	videoList = append(videoList, videoVo)
+	//}
 
 	return videoList
 }

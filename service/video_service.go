@@ -20,6 +20,10 @@ func NewVideoService() *VideoService {
 	return &VideoService{}
 }
 
+func (v *VideoService) GetVideoById(videoId int64) db.Video {
+	return db.GetVideo(videoId)
+}
+
 // PublishVideo 发布视频
 // 发布成功则返回 fileName，否则抛出错误 err
 func (v *VideoService) PublishVideo(user model.User, title string, file *multipart.FileHeader) (finalName string, err error) {
@@ -38,13 +42,41 @@ func (v *VideoService) PublishVideo(user model.User, title string, file *multipa
 	video := &db.Video{}
 	video.UserId = user.Id
 	video.Tag = v.parseTag(title)
-	video.PlayUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "/static/", filename)
+	video.PlayUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "static", filename)
 	// TODO 需要生成封面
 	// video.CoverUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "/static/", filename)
 
 	// 将视频信息保存到数据库
 	db.CreateVideo(video)
 	return
+}
+
+// GetPublishList 获取视频列表，并将 DO 对象转成 VO 对象
+func (v *VideoService) GetPublishList(userId int64) []model.Video {
+	// 获取视频列表，并准备转化成投稿列表
+	var videoList = db.GetPublishByUserId(userId)
+	var publishList = make([]model.Video, len(videoList))
+
+	// TODO 获取投稿用户（等用户功能完成）
+	// user := userService.GetUserById(userId)
+	var user model.User
+
+	// 对象转化
+	for _, v := range videoList {
+		// TODO 判断用户是否点赞本视频
+		// favorite := videoService.IsFavorite(v.ID)
+		var favorite bool
+		publishList = append(publishList, model.Video{
+			Id:            v.ID,
+			Author:        user,
+			PlayUrl:       v.PlayUrl,
+			CoverUrl:      v.CoverUrl,
+			FavoriteCount: v.FavoriteCount,
+			CommentCount:  v.CommentCount,
+			IsFavorite:    favorite,
+		})
+	}
+	return publishList
 }
 
 // getTag 解析标题中的标签，若有标签则去除标题中该标签

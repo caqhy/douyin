@@ -20,6 +20,7 @@ func CommentAction(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, model.Response{StatusCode: 1, StatusMsg: "User doesn't exist"})
 	}
+
 }
 
 // CommentList all videos have same demo comment list

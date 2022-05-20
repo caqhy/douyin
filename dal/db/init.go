@@ -41,7 +41,7 @@ func Init() {
 func DatabaseInit() {
 	// 加载配置文件获取 DSN
 	c := &config{}
-	loadConfig("config/config.yml", c)
+	loadConfig("./config/config.yml", c)
 
 	// 初始化两个数据库
 	var err error

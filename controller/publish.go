@@ -6,12 +6,8 @@ import (
 	"github.com/RaymondCode/simple-demo/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
-
-type VideoListResponse struct {
-	model.Response
-	VideoList []model.Video `json:"video_list"`
-}
 
 // 注入服务
 var videoService = service.NewVideoService()
@@ -61,11 +57,18 @@ func Publish(c *gin.Context) {
 
 // PublishList all users have same publish video list
 func PublishList(c *gin.Context) {
+	// 获取用户 ID
+	userId := c.Query("user_id")
+	// 调用获取投稿服务
+	id, _ := strconv.Atoi(userId)
+	videoList := videoService.GetPublishList(int64(id))
+
 	fmt.Println("进来到列表了")
-	c.JSON(http.StatusOK, VideoListResponse{
+	fmt.Printf("%+v", videoList)
+	c.JSON(http.StatusOK, model.VideoListResponse{
 		Response: model.Response{
 			StatusCode: 0,
 		},
-		VideoList: DemoVideos,
+		VideoList: videoList,
 	})
 }

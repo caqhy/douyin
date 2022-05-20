@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/RaymondCode/simple-demo/dal"
+	"github.com/RaymondCode/simple-demo/dal/db"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -28,11 +32,19 @@ func (t *MyTicker) Start() {
 	}
 }
 
-func testPrint() {
-	fmt.Println(" 滴答 1 次")
+func FavoriteToDb() {
+	videos, _ := db.Redis.Scan(0, "douyin:favorite:*user1", 100).Val()
+	for _, video := range videos {
+		start := strings.Index(video, "video")
+		end := strings.Index(video, ":user")
+		video = video[start+5 : end]
+		videoId, _ := strconv.ParseInt(video, 10, 64)
+		fmt.Println(videoId)
+	}
+
 }
 
 func main() {
-	t := NewMyTick(2, testPrint)
+	t := NewMyTick(2, FavoriteToDb)
 	t.Start()
 }

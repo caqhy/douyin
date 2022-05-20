@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/RaymondCode/simple-demo/dal/db"
+	"time"
 )
 
 type FavoriteService struct {
@@ -14,9 +15,9 @@ func NewFavoriteService() *FavoriteService {
 }
 
 func (f *FavoriteService) DoLike(userId int64, videoId int64) {
-	key := fmt.Sprintf("video%d:user%d", videoId, userId)
+	key := fmt.Sprintf("douyin:favorite:video%d:user%d", videoId, userId)
 	fmt.Println(key)
-	_, err := db.Redis.Set(key, 1, 0).Result()
+	_, err := db.Redis.Set(key, 1, time.Minute*5).Result()
 	if err != nil {
 		panic(err)
 	}
@@ -24,9 +25,9 @@ func (f *FavoriteService) DoLike(userId int64, videoId int64) {
 }
 
 func (f *FavoriteService) CancelLike(userId int64, videoId int64) {
-	key := fmt.Sprintf("video%d:user%d", videoId, userId)
+	key := fmt.Sprintf("douyin:favorite:video%d:user%d", videoId, userId)
 	fmt.Println(key)
-	_, err := db.Redis.SetXX(key, 0, 0).Result()
+	_, err := db.Redis.Set(key, 0, time.Minute*5).Result()
 	if err != nil {
 		panic(err)
 	}

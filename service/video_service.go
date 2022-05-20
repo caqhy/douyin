@@ -20,6 +20,7 @@ func NewVideoService() *VideoService {
 	return &VideoService{}
 }
 
+// GetVideoById 通过视频 ID 获取视频对象
 func (v *VideoService) GetVideoById(videoId int64) db.Video {
 	return db.GetVideo(videoId)
 }
@@ -44,6 +45,7 @@ func (v *VideoService) PublishVideo(user model.User, title string, file *multipa
 	video.Tag = v.parseTag(title)
 	video.PlayUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "static", filename)
 	// TODO 需要生成封面
+
 	// video.CoverUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "/static/", filename)
 
 	// 将视频信息保存到数据库

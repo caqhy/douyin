@@ -3,19 +3,37 @@ package utils
 import (
 	"bytes"
 	"fmt"
-	"os/exec"
+	"github.com/disintegration/imaging"
+	ffmpeg "github.com/u2takey/ffmpeg-go"
+	"log"
+	"os"
+	"strings"
 )
 
-// GetSnapshot 生成视频缩略图（作为封面）
-func GetSnapshot(filePath string, width, height int) {
-	// 生成 CMD 命令
-	cmd := exec.Command("ffmpeg", "-i", filePath, "-vframes", "1", "-s",
-		fmt.Sprintf("%dx%d", width, height), "-f", "singlejpeg", "-")
-
-	buf := new(bytes.Buffer)
-	cmd.Stdout = buf
-	if err := cmd.Run(); err != nil {
-		fmt.Println("could not generate frame", err)
+// GetSnapshot 生成视频缩略图并保存（作为封面）
+func GetSnapshot(videoPath, snapshotPath string, frameNum int) (snapshotName string) {
+	buf := bytes.NewBuffer(nil)
+	err := ffmpeg.Input(videoPath).
+		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
+		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+		WithOutput(buf, os.Stdout).
+		Run()
+	if err != nil {
+		log.Fatal("生成缩略图失败：", err)
 	}
 
+	img, err := imaging.Decode(buf)
+	if err != nil {
+		log.Fatal("生成缩略图失败：", err)
+	}
+
+	err = imaging.Save(img, snapshotPath+".jpeg")
+	if err != nil {
+		log.Fatal("生成缩略图失败：", err)
+	}
+
+	// 成功则返回生成的缩略图名
+	names := strings.Split(snapshotPath, "\\")
+	snapshotName = names[len(names)-1] + ".jpeg"
+	return
 }

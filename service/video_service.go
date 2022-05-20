@@ -5,6 +5,7 @@ import (
 	"github.com/RaymondCode/simple-demo/constant"
 	"github.com/RaymondCode/simple-demo/dal/db"
 	"github.com/RaymondCode/simple-demo/model"
+	"github.com/RaymondCode/simple-demo/utils"
 	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"path/filepath"
@@ -39,14 +40,15 @@ func (v *VideoService) PublishVideo(user model.User, title string, file *multipa
 		return
 	}
 
+	// 生成缩略图并保存到服务器
+	snapshotName := utils.GetSnapshot(saveFile, filepath.Join("./public/", finalName), 50)
+
 	// 封装视频对象
 	video := &db.Video{}
 	video.UserId = user.Id
 	video.Tag = v.parseTag(title)
-	video.PlayUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "static", filename)
-	// TODO 需要生成封面
-
-	// video.CoverUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "/static/", filename)
+	video.PlayUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "static", finalName)
+	video.CoverUrl = fmt.Sprintf("%s/%s/%s", constant.Host, "static", snapshotName)
 
 	// 将视频信息保存到数据库
 	db.CreateVideo(video)
@@ -64,9 +66,10 @@ func (v *VideoService) GetPublishList(userId int64) []model.Video {
 	var user model.User
 
 	// 对象转化
+	// favorite := videoService.IsFavorite(user， videoList)
 	for _, v := range videoList {
 		// TODO 判断用户是否点赞本视频
-		// favorite := videoService.IsFavorite(v.ID)
+
 		var favorite bool
 		publishList = append(publishList, model.Video{
 			Id:            v.ID,

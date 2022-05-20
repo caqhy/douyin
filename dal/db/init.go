@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"path"
+	"runtime"
 )
 
 // 配置文件
@@ -41,7 +43,8 @@ func Init() {
 func DatabaseInit() {
 	// 加载配置文件获取 DSN
 	c := &config{}
-	loadConfig("./config/config.yml", c)
+	_, filename, _, _ := runtime.Caller(0)
+	loadConfig(path.Dir(path.Dir(path.Dir(filename)))+"/config/config.yml", c)
 
 	// 初始化两个数据库
 	var err error

@@ -3,6 +3,7 @@ module github.com/RaymondCode/simple-demo
 go 1.17
 
 require (
+	github.com/deckarep/golang-set v1.8.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-redis/redis v6.15.9+incompatible
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b

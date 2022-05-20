@@ -14,6 +14,11 @@ type FavoriteQuery struct {
 	ActionType int    `form:"actionType" binding:"required"`
 }
 
+type FavoriteListQuery struct {
+	UserId int64  `form:"user_id" binding:"required"`
+	Token  string `form:"token" binding:"required"`
+}
+
 type FavoriteListResponse struct {
 	model.Response
 	FavoriteList []model.Video `json:"video_list"`
@@ -44,10 +49,21 @@ func FavoriteAction(c *gin.Context) {
 
 // FavoriteList all users have same favorite video list
 func FavoriteList(c *gin.Context) {
+	var p FavoriteListQuery
+	err := c.ShouldBindQuery(&p)
+	if err != nil {
+		c.JSON(http.StatusForbidden, model.Response{StatusCode: 403, StatusMsg: "参数不合法"})
+		return
+	}
+	if _, user := usersLoginInfo[p.Token]; !user {
+		c.JSON(http.StatusForbidden, model.Response{StatusCode: 403, StatusMsg: "用户未登录！"})
+		return
+	}
+	likeVideoList := favoriteService.GetLikeList(p.UserId)
 	c.JSON(http.StatusOK, VideoListResponse{
 		Response: model.Response{
-			StatusCode: 0,
+			StatusCode: 200,
 		},
-		VideoList: DemoVideos,
+		VideoList: likeVideoList,
 	})
 }

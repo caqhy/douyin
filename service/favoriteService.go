@@ -3,6 +3,10 @@ package service
 import (
 	"fmt"
 	"github.com/RaymondCode/simple-demo/dal/db"
+	"github.com/RaymondCode/simple-demo/model"
+	mapset "github.com/deckarep/golang-set"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -32,4 +36,43 @@ func (f *FavoriteService) CancelLike(userId int64, videoId int64) {
 		panic(err)
 	}
 	return
+}
+
+func (f *FavoriteService) GetLikeList(userId int64) []model.Video {
+	var videoList []model.Video
+	videoIdSet := mapset.NewSet()
+	// 先从mysql中获取用户已经点赞的视频
+	var favorites []db.Favorite
+	db.DB.Find(&favorites, "user_id = ?", userId)
+	for _, favorite := range favorites {
+		if favorite.Tag == 0 {
+			continue
+		}
+		videoIdSet.Add(favorite.VideoID)
+	}
+
+	// 再从缓存中获取用户已经点赞的视频
+	temp := fmt.Sprintf("douyin:favorite:*user%d", userId)
+	videos, err := db.Redis.Keys(temp).Result()
+	if err != nil {
+		panic(err)
+	}
+	for _, video := range videos {
+		tempTag, _ := db.Redis.Get(video).Result()
+		tag, _ := strconv.Atoi(tempTag)
+		SplitData := strings.Split(video, ":")
+		tempVideo := SplitData[2][5:]
+		videoId, _ := strconv.ParseInt(tempVideo, 10, 64)
+		if tag == 0 {
+			if videoIdSet.Contains(videoId) {
+				videoIdSet.Remove(videoId)
+			}
+			continue
+		}
+		videoIdSet.Add(videoId)
+	}
+	fmt.Println(videoIdSet)
+	//var videoVo model.Video
+	//videoList = append(videoList, videoVo)
+	return videoList
 }

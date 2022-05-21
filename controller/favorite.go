@@ -5,6 +5,7 @@ import (
 	"github.com/RaymondCode/simple-demo/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type FavoriteQuery struct {
@@ -34,7 +35,9 @@ func FavoriteAction(c *gin.Context) {
 		c.JSON(http.StatusForbidden, model.Response{StatusCode: 403, StatusMsg: "参数不合法"})
 		return
 	}
-	if _, user := usersLoginInfo[p.Token]; !user {
+	userId := strconv.FormatInt(p.UserId, 10)
+	_, err = userService.UserInfo(userId, p.Token)
+	if err != nil {
 		c.JSON(http.StatusForbidden, model.Response{StatusCode: 403, StatusMsg: "用户未登录！"})
 		return
 	}
@@ -55,7 +58,9 @@ func FavoriteList(c *gin.Context) {
 		c.JSON(http.StatusForbidden, model.Response{StatusCode: 403, StatusMsg: "参数不合法"})
 		return
 	}
-	if _, user := usersLoginInfo[p.Token]; !user {
+	userId := strconv.FormatInt(p.UserId, 10)
+	_, err = userService.UserInfo(userId, p.Token)
+	if err != nil {
 		c.JSON(http.StatusForbidden, model.Response{StatusCode: 403, StatusMsg: "用户未登录！"})
 		return
 	}

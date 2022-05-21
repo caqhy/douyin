@@ -6,7 +6,6 @@ import (
 	"gopkg.in/yaml.v3"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 	"log"
 	"os"
 	"path"
@@ -50,9 +49,9 @@ func DatabaseInit() {
 	// 初始化两个数据库
 	var err error
 	DB, err = gorm.Open(mysql.Open(c.Mysql.DSN), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true, // 使用单数表名
-		},
+		//NamingStrategy: schema.NamingStrategy{
+		//	SingularTable: true, // 使用单数表名
+		//},
 	})
 	Redis = redis.NewClient(&redis.Options{
 		Addr:     c.Redis.Addr,

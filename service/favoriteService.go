@@ -38,9 +38,12 @@ func (f *FavoriteService) CancelLike(userId int64, videoId int64) {
 	return
 }
 
+func (f *FavoriteService) IsLike()
+
 func (f *FavoriteService) GetLikeList(userId int64) []model.Video {
 	var videoList []model.Video
 	videoIdSet := mapset.NewSet()
+
 	// 先从mysql中获取用户已经点赞的视频
 	var favorites []db.Favorite
 	db.DB.Find(&favorites, "user_id = ?", userId)
@@ -72,14 +75,24 @@ func (f *FavoriteService) GetLikeList(userId int64) []model.Video {
 		videoIdSet.Add(videoId)
 	}
 
-	// 将找到的视频id转换为视频列表
-	//for id := range videoIdSet.Iterator().C {
-	//	var video db.Video
-	//	db.DB.Find(&video, id)
-	//	var user model.User
-	//	videoVo := model.Video{}
-	//	videoList = append(videoList, videoVo)
-	//}
-
+	//将找到的视频id转换为视频列表
+	for id := range videoIdSet.Iterator().C {
+		fmt.Println(id)
+		//TODO 用id查video
+		// video := db.GetVideo(id.(int64))
+		video := model.Video{
+			Id:            uint(id.(int64)),
+			Author:        model.User{},
+			PlayUrl:       "",
+			CoverUrl:      "",
+			FavoriteCount: 0,
+			CommentCount:  0,
+			IsFavorite:    false,
+		}
+		fmt.Println(video)
+		//var user model.User
+		//videoVo := model.Video{}
+		videoList = append(videoList, video)
+	}
 	return videoList
 }

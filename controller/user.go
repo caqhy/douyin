@@ -10,15 +10,16 @@ import (
 // usersLoginInfo use map to store user info, and key is username+password for demo
 // user data will be cleared every time the server starts
 // test data: username=zhanglei, password=douyin
-//var usersLoginInfo = map[string]model.User{
-//	"IceClean233333": {
-//		Id:            1,
-//		Name:          "IceClean",
-//		FollowCount:   10,
-//		FollowerCount: 5,
-//		IsFollow:      true,
-//	},
-//}
+var usersLoginInfo = map[string]model.User{
+	"IceClean233333": {
+		Id:            1,
+		Name:          "IceClean",
+		FollowCount:   10,
+		FollowerCount: 5,
+		IsFollow:      true,
+	},
+}
+
 //
 //var userIdSequence = int64(1)
 

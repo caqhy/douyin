@@ -58,9 +58,7 @@ func FavoriteList(c *gin.Context) {
 		c.JSON(http.StatusForbidden, model.Response{StatusCode: 403, StatusMsg: "参数不合法"})
 		return
 	}
-	userId := strconv.FormatInt(p.UserId, 10)
-	_, err = userService.UserInfo(userId, p.Token)
-	if err != nil {
+	if _, user := usersLoginInfo[p.Token]; !user {
 		c.JSON(http.StatusForbidden, model.Response{StatusCode: 403, StatusMsg: "用户未登录！"})
 		return
 	}

@@ -38,7 +38,30 @@ func (f *FavoriteService) CancelLike(userId int64, videoId int64) {
 	return
 }
 
-func (f *FavoriteService) IsLike()
+func (f *FavoriteService) IsLike(userId int64, videoId int64) bool {
+	// 先到缓存中查找
+	temp := fmt.Sprintf("douyin:favorite:video%d:user%d", videoId, userId)
+	tempTag, err := db.Redis.Get(temp).Result()
+	// 如果在redis中存在的话，优先采用redis
+	if err == nil {
+		tag, _ := strconv.Atoi(tempTag)
+		if tag == 1 {
+			return true
+		} else if tag == 0 {
+			return false
+		}
+	}
+	// 再到数据库中查找
+	var favorite db.Favorite
+	result := db.DB.Find(&favorite, "user_id = ? and video_id = ?", userId, videoId)
+	if result.RowsAffected == 0 {
+		return false
+	} else if favorite.Tag == 0 {
+		return false
+	} else {
+		return true
+	}
+}
 
 func (f *FavoriteService) GetLikeList(userId int64) []model.Video {
 	var videoList []model.Video
@@ -56,10 +79,7 @@ func (f *FavoriteService) GetLikeList(userId int64) []model.Video {
 
 	// 再从缓存中获取用户已经点赞的视频
 	temp := fmt.Sprintf("douyin:favorite:*user%d", userId)
-	videos, err := db.Redis.Keys(temp).Result()
-	if err != nil {
-		panic(err)
-	}
+	videos, _ := db.Redis.Keys(temp).Result()
 	for _, video := range videos {
 		tempTag, _ := db.Redis.Get(video).Result()
 		tag, _ := strconv.Atoi(tempTag)

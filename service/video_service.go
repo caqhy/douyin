@@ -64,8 +64,8 @@ func (v *VideoService) GetPublishList(userId int64) []model.Video {
 	// 对象转化
 	for _, v := range videoList {
 		// TODO 判断用户是否点赞本视频
-		// favorite := videoService.IsFavorite(v.ID)
 		var favorite bool
+		//favorite = FavoriteService.IsLike(userId, v.ID)
 		publishList = append(publishList, model.Video{
 			Id:            v.ID,
 			Author:        user,

@@ -140,30 +140,12 @@ func (f *FavoriteService) Recommend(userId int64) []db.Video {
 			TopTags = append(TopTags, v.Tag)
 		}
 	}
-	switch len(TopTags) {
-	case 0:
-		{
-			db.DB.Find(&videoList)
-		}
-	case 1:
-		{
-			sql := fmt.Sprintf("%%%s%%", TopTags[0])
-			db.DB.Find(&videoList).Where("tag LIKE ?", sql)
-		}
-	case 2:
-		{
-			sql1 := fmt.Sprintf("%%%s%%", TopTags[0])
-			sql2 := fmt.Sprintf("%%%s%%", TopTags[1])
-			db.DB.Find(&videoList).Where("tag LIKE ?", sql1).Or("tag LIKE ?", sql2)
-		}
-	case 3:
-		{
-			sql1 := fmt.Sprintf("%%%s%%", TopTags[0])
-			sql2 := fmt.Sprintf("%%%s%%", TopTags[1])
-			sql3 := fmt.Sprintf("%%%s%%", TopTags[2])
-			db.DB.Find(&videoList).Where("tag LIKE ?", sql1).Or("tag LIKE ?", sql2).Or("tag LIKE ?", sql3)
-		}
+	db.DB.Where("1=1")
+	for i, _ := range TopTags {
+		sql := fmt.Sprintf("%%%s%%", TopTags[i])
+		db.DB.Or("tag LIKE ?", sql)
 	}
+	db.DB.Find(&videoList).Limit(50)
 	return videoList
 }
 

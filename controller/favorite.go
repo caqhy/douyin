@@ -6,15 +6,15 @@ import (
 	"net/http"
 )
 
-// FavoriteAction no practical effect, just check if token is valid
+//FavoriteAction no practical effect, just check if token is valid
 func FavoriteAction(c *gin.Context) {
-	token := c.Query("token")
-
-	if _, exist := usersLoginInfo[token]; exist {
-		c.JSON(http.StatusOK, model.Response{StatusCode: 0})
-	} else {
-		c.JSON(http.StatusOK, model.Response{StatusCode: 1, StatusMsg: "User doesn't exist"})
-	}
+	//token := c.Query("token")
+	//
+	//if _, exist := usersLoginInfo[token]; exist {
+	//	c.JSON(http.StatusOK, model.Response{StatusCode: 0})
+	//} else {
+	//	c.JSON(http.StatusOK, model.Response{StatusCode: 1, StatusMsg: "User doesn't exist"})
+	//}
 }
 
 // FavoriteList all users have same favorite video list

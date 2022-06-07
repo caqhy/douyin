@@ -2,18 +2,19 @@ package main
 
 import (
 	"github.com/RaymondCode/simple-demo/controller"
+	"github.com/RaymondCode/simple-demo/middleWare"
 	"github.com/gin-gonic/gin"
 )
 
 func initRouter(r *gin.Engine) {
-	// public directory is used to serve static resources
-	r.Static("/static", "./public")
+	// public directory is used to serve images resources
+	r.Static("/images", "./public/images")
 
 	apiRouter := r.Group("/douyin")
 
 	// basic apis
 	apiRouter.GET("/feed/", controller.Feed)
-	apiRouter.GET("/user/", controller.UserInfo)
+	apiRouter.GET("/user/", middleWare.LoginCheck, middleWare.AuthorityCheck, controller.UserInfo) //测试中间件
 	apiRouter.POST("/user/register/", controller.Register)
 	apiRouter.POST("/user/login/", controller.Login)
 	apiRouter.POST("/publish/action/", controller.Publish)
